@@ -112,13 +112,111 @@
 
 -- Drop existing tables, so you'll start fresh each time this script is run.
 -- TODO!
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS actors;
+DROP TABLE IF EXISTS studios;
+
 
 -- Create new tables, according to your domain model
 -- TODO!
 
+-- Create studios table
+CREATE TABLE studios (
+    studio_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+-- Create movies table
+CREATE TABLE movies (
+    movie_id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    year_released INTEGER NOT NULL,
+    mpaa_rating TEXT NOT NULL,
+    studio_id INTEGER NOT NULL,
+    FOREIGN KEY (studio_id) REFERENCES studios(studio_id)
+);
+
+-- Create actors table
+CREATE TABLE actors (
+    actor_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+-- Create roles table
+CREATE TABLE roles (
+    movie_id INTEGER NOT NULL,
+    actor_id INTEGER NOT NULL,
+    character_name TEXT NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (actor_id) REFERENCES actors(actor_id),
+    PRIMARY KEY (movie_id, actor_id)
+);
+
+-- Create reviews table
+CREATE TABLE reviews (
+    review_id INTEGER PRIMARY KEY,
+    movie_id INTEGER NOT NULL,
+    review_text TEXT NOT NULL,
+    rating INTEGER NOT NULL,
+    reviewer_name TEXT NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
+
+
 -- Insert data into your database that reflects the sample data shown above
 -- Use hard-coded foreign key IDs when necessary
 -- TODO!
+
+-- Insert studio data
+INSERT INTO studios (studio_id, name) VALUES (1, 'Warner Bros.');
+
+-- Insert movie data
+INSERT INTO movies (movie_id, title, year_released, mpaa_rating, studio_id) VALUES
+(1, 'Batman Begins', 2005, 'PG-13', 1),
+(2, 'The Dark Knight', 2008, 'PG-13', 1),
+(3, 'The Dark Knight Rises', 2012, 'PG-13', 1);
+
+-- Insert actor data
+INSERT INTO actors (actor_id, name) VALUES
+(1, 'Christian Bale'),
+(2, 'Michael Caine'),
+(3, 'Liam Neeson'),
+(4, 'Katie Holmes'),
+(5, 'Gary Oldman'),
+(6, 'Heath Ledger'),
+(7, 'Aaron Eckhart'),
+(8, 'Maggie Gyllenhaal'),
+(9, 'Tom Hardy'),
+(10, 'Joseph Gordon-Levitt'),
+(11, 'Anne Hathaway');
+
+-- Insert roles data
+INSERT INTO roles (movie_id, actor_id, character_name) VALUES
+(1, 1, 'Bruce Wayne'),
+(1, 2, 'Alfred'),
+(1, 3, 'Ra''s Al Ghul'),
+(1, 4, 'Rachel Dawes'),
+(1, 5, 'Commissioner Gordon'),
+(2, 1, 'Bruce Wayne'),
+(2, 6, 'Joker'),
+(2, 7, 'Harvey Dent'),
+(2, 2, 'Alfred'),
+(2, 8, 'Rachel Dawes'),
+(3, 1, 'Bruce Wayne'),
+(3, 5, 'Commissioner Gordon'),
+(3, 9, 'Bane'),
+(3, 10, 'John Blake'),
+(3, 11, 'Selina Kyle');
+
+-- Insert review data
+INSERT INTO reviews (review_id, movie_id, review_text, rating, reviewer_name) VALUES
+(1, 1, 'Loved it', 5, 'John Doe'),
+(2, 1, 'Decent movie', 4, 'Jane Smith'),
+(3, 2, 'Outstanding', 5, 'Alice Johnson'),
+(4, 2, 'Dark and deep', 5, 'Bob Brown'),
+(5, 3, 'Great finish', 5, 'Charlie Davis');
 
 -- Prints a header for the movies output
 .print "Movies"
@@ -127,6 +225,19 @@
 
 -- The SQL statement for the movies output
 -- TODO!
+SELECT 
+    m.title,
+    m.year_released,
+    m.mpaa_rating,
+    s.name AS studio_name,
+    a.name AS actor_name,
+    r.character_name
+FROM movies m
+JOIN studios s ON m.studio_id = s.studio_id
+JOIN roles r ON m.movie_id = r.movie_id
+JOIN actors a ON r.actor_id = a.actor_id
+WHERE m.title = 'Batman Begins'
+ORDER BY a.name;
 
 -- Prints a header for the cast output
 .print ""
@@ -137,3 +248,11 @@
 
 -- The SQL statement for the cast output
 -- TODO!
+SELECT *
+FROM movies m
+JOIN roles r ON m.movie_id = r.movie_id
+JOIN actors a ON r.actor_id = a.actor_id
+ORDER BY m.title, a.name;
+
+SELECT * FROM movies;
+SELECT * FROM studios;
